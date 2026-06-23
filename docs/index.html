@@ -1,0 +1,863 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+  <meta charset="UTF-8" />
+  <meta name="viewport" content="width=device-width, initial-scale=1.0" />
+  <title>DartActuallyWorks — Case Study</title>
+  <style>
+    *, *::before, *::after { box-sizing: border-box; margin: 0; padding: 0; }
+
+    :root {
+      --green:       #00693e;   /* Dartmouth Green PMS 349 */
+      --green-dark:  #12312b;   /* Forest Green PMS 627 */
+      --green-deep:  #0D1E1C;   /* Rich Forest Green (digital) */
+      --green-mid:   #00693e;
+      --green-light: #ddeee6;
+      --green-pale:  #f0f7f3;
+      --text:        #000000;   /* Midnight Black */
+      --muted:       #4a5568;
+      --border:      #c8ddd5;
+      --bg:          #ffffff;   /* Snow White */
+      --card:        #f7faf8;
+    }
+
+    html { scroll-behavior: smooth; }
+
+    body {
+      font-family: -apple-system, BlinkMacSystemFont, "Segoe UI", Roboto, "Helvetica Neue", Arial, sans-serif;
+      color: var(--text);
+      background: var(--bg);
+      line-height: 1.6;
+    }
+
+    /* ── NAV ── */
+    nav {
+      position: sticky;
+      top: 0;
+      z-index: 100;
+      background: var(--green-deep);
+      padding: 0 2.5rem;
+      display: flex;
+      align-items: center;
+      justify-content: space-between;
+      height: 58px;
+    }
+    .nav-logo {
+      font-weight: 800;
+      font-size: 1rem;
+      color: #ffffff;
+      text-decoration: none;
+      letter-spacing: -0.01em;
+    }
+    .nav-logo span { color: #a3c9b5; }
+    nav ul { display: flex; gap: 2rem; list-style: none; }
+    nav ul a {
+      font-size: 0.82rem;
+      font-weight: 500;
+      color: rgba(255,255,255,0.7);
+      text-decoration: none;
+      transition: color 0.15s;
+    }
+    nav ul a:hover { color: #ffffff; }
+
+    /* ── HERO ── */
+    .hero {
+      background: linear-gradient(135deg, var(--green-deep) 0%, var(--green-dark) 60%, var(--green-mid) 100%);
+      color: white;
+      padding: 5.5rem 2rem 5rem;
+      position: relative;
+      overflow: hidden;
+    }
+    .hero::before {
+      content: "";
+      position: absolute;
+      top: -80px; right: -80px;
+      width: 400px; height: 400px;
+      border-radius: 50%;
+      background: rgba(255,255,255,0.04);
+      pointer-events: none;
+    }
+    .hero::after {
+      content: "";
+      position: absolute;
+      bottom: -120px; left: -60px;
+      width: 350px; height: 350px;
+      border-radius: 50%;
+      background: rgba(255,255,255,0.03);
+      pointer-events: none;
+    }
+    .hero-inner { max-width: 860px; margin: 0 auto; position: relative; z-index: 1; }
+    .hero-tag {
+      display: inline-block;
+      font-size: 0.7rem;
+      font-weight: 700;
+      letter-spacing: 0.1em;
+      text-transform: uppercase;
+      color: #a3c9b5;
+      border: 1px solid rgba(163,201,181,0.5);
+      padding: 4px 12px;
+      border-radius: 20px;
+      margin-bottom: 1.5rem;
+    }
+    .hero h1 {
+      font-size: clamp(2.2rem, 5.5vw, 3.4rem);
+      font-weight: 800;
+      letter-spacing: -0.035em;
+      line-height: 1.1;
+      margin-bottom: 1.1rem;
+    }
+    .hero h1 em { font-style: normal; color: #a3c9b5; }
+    .hero .sub {
+      font-size: 1.1rem;
+      color: rgba(255,255,255,0.75);
+      max-width: 580px;
+      margin-bottom: 3rem;
+      line-height: 1.65;
+    }
+    .meta-row {
+      display: flex;
+      flex-wrap: wrap;
+      gap: 2.5rem;
+      padding-top: 2rem;
+      border-top: 1px solid rgba(255,255,255,0.15);
+    }
+    .meta-item label {
+      display: block;
+      font-size: 0.65rem;
+      font-weight: 700;
+      letter-spacing: 0.1em;
+      text-transform: uppercase;
+      color: rgba(255,255,255,0.5);
+      margin-bottom: 3px;
+    }
+    .meta-item span { font-size: 0.88rem; font-weight: 500; color: white; }
+
+    /* ── STATS BANNER ── */
+    .stats {
+      background: var(--green);
+      padding: 2.75rem 2rem;
+    }
+    .stats-inner {
+      max-width: 860px;
+      margin: 0 auto;
+      display: grid;
+      grid-template-columns: repeat(4, 1fr);
+      gap: 1rem;
+      text-align: center;
+    }
+    .stat { color: white; }
+    .stat .num {
+      font-size: 2.75rem;
+      font-weight: 800;
+      letter-spacing: -0.05em;
+      line-height: 1;
+    }
+    .stat .lbl {
+      font-size: 0.77rem;
+      font-weight: 500;
+      opacity: 0.85;
+      margin-top: 5px;
+    }
+
+    /* ── SECTIONS ── */
+    section {
+      max-width: 860px;
+      margin: 0 auto;
+      padding: 4.5rem 2rem;
+    }
+    section + section { border-top: 1px solid var(--border); }
+
+    .sec-tag {
+      font-size: 0.67rem;
+      font-weight: 700;
+      letter-spacing: 0.1em;
+      text-transform: uppercase;
+      color: var(--green);
+      margin-bottom: 0.4rem;
+    }
+    h2 {
+      font-size: 1.75rem;
+      font-weight: 700;
+      letter-spacing: -0.03em;
+      margin-bottom: 1rem;
+      color: var(--green-deep);
+    }
+    h3 { font-size: 1rem; font-weight: 600; margin-bottom: 0.35rem; }
+    p { color: #1a2e26; margin-bottom: 1rem; }
+    p:last-child { margin-bottom: 0; }
+
+    blockquote {
+      border-left: 4px solid var(--green);
+      padding: 0.85rem 1.25rem;
+      margin: 1.75rem 0;
+      background: var(--green-pale);
+      border-radius: 0 10px 10px 0;
+      font-style: italic;
+      color: var(--green-deep);
+      font-size: 0.95rem;
+      line-height: 1.6;
+    }
+
+    /* ── THEME CARDS ── */
+    .theme-grid {
+      display: grid;
+      grid-template-columns: repeat(auto-fit, minmax(260px, 1fr));
+      gap: 1rem;
+      margin-top: 1.75rem;
+    }
+    .theme-card {
+      background: white;
+      border: 1.5px solid var(--border);
+      border-top: 3px solid var(--green);
+      border-radius: 12px;
+      padding: 1.25rem 1.5rem;
+    }
+    .theme-num {
+      font-size: 0.65rem;
+      font-weight: 700;
+      letter-spacing: 0.09em;
+      text-transform: uppercase;
+      color: var(--green);
+      margin-bottom: 5px;
+    }
+    .theme-card h3 { font-size: 0.92rem; color: var(--green-deep); }
+    .theme-card p { font-size: 0.84rem; color: var(--muted); margin-bottom: 0; margin-top: 6px; }
+
+    /* ── PRINCIPLES ── */
+    .principle-list { display: flex; flex-direction: column; gap: 1rem; margin-top: 1.5rem; }
+    .principle-card {
+      display: flex;
+      gap: 1.25rem;
+      align-items: flex-start;
+      background: var(--green-pale);
+      border: 1.5px solid #b8d5c8;
+      border-radius: 12px;
+      padding: 1.25rem 1.5rem;
+    }
+    .p-icon {
+      width: 38px; height: 38px; min-width: 38px;
+      border-radius: 9px;
+      background: var(--green);
+      color: white;
+      display: flex; align-items: center; justify-content: center;
+      font-weight: 800; font-size: 0.9rem;
+    }
+    .principle-card h3 { font-size: 0.9rem; color: var(--green-deep); }
+    .principle-card p { font-size: 0.83rem; color: #1a2e26; margin-bottom: 0; }
+
+    /* ── PROTOTYPE DIAGRAM ── */
+    .diagram-wrap {
+      background: var(--green-pale);
+      border: 1.5px solid #b8d5c8;
+      border-radius: 16px;
+      padding: 1.5rem;
+      margin-top: 1.5rem;
+    }
+    .diagram-lbl {
+      font-size: 0.65rem;
+      font-weight: 700;
+      letter-spacing: 0.07em;
+      text-transform: uppercase;
+      color: var(--green-mid);
+      text-align: center;
+      margin-bottom: 1rem;
+    }
+    .diagram {
+      display: grid;
+      grid-template-columns: 185px 1fr 185px;
+      min-height: 230px;
+      border: 1.5px solid #b8d5c8;
+      border-radius: 10px;
+      overflow: hidden;
+      background: white;
+    }
+    .d-panel { padding: 12px; border-right: 1.5px solid #b8d5c8; font-size: 0.68rem; }
+    .d-panel:last-child { border-right: none; border-left: 1.5px solid #b8d5c8; }
+    .d-center { padding: 12px; }
+    .d-panel h4, .d-center h4 {
+      font-size: 0.6rem;
+      font-weight: 700;
+      text-transform: uppercase;
+      letter-spacing: 0.07em;
+      color: var(--green-deep);
+      margin-bottom: 8px;
+    }
+    .rbar { display: flex; align-items: center; gap: 5px; margin-bottom: 5px; }
+    .rbar .fill { height: 5px; border-radius: 3px; background: var(--green); }
+    .rbar span { font-size: 0.6rem; color: var(--muted); white-space: nowrap; }
+    .term-box {
+      border: 1.5px solid #b8d5c8;
+      border-radius: 6px;
+      padding: 5px 7px;
+      background: var(--green-pale);
+      margin-bottom: 5px;
+    }
+    .tlbl { font-size: 0.56rem; font-weight: 700; color: var(--green-mid); margin-bottom: 3px; }
+    .cpill {
+      font-size: 0.56rem;
+      font-weight: 600;
+      padding: 2px 5px;
+      border-radius: 4px;
+      background: var(--green);
+      color: white;
+      display: inline-block;
+      margin: 1px 1px 1px 0;
+    }
+    .ai-pill {
+      font-size: 0.6rem;
+      padding: 4px 7px;
+      background: var(--green-light);
+      color: var(--green-dark);
+      border-radius: 4px;
+      margin-bottom: 4px;
+      border: 1px solid #b8d5c8;
+    }
+    .v-item { font-size: 0.6rem; color: #dc2626; padding: 3px 6px; background: #fef2f2; border-radius: 4px; margin-bottom: 4px; }
+    .v-warn { font-size: 0.6rem; color: #b45309; padding: 3px 6px; background: #fffbeb; border-radius: 4px; margin-bottom: 4px; }
+    .sub-lbl { font-size: 0.56rem; font-weight: 700; text-transform: uppercase; letter-spacing: 0.07em; color: var(--green-mid); margin: 8px 0 5px; }
+
+    /* ── FEATURES ── */
+    .feature-chips { display: flex; flex-wrap: wrap; gap: 8px; margin-top: 1.5rem; }
+    .chip {
+      font-size: 0.78rem;
+      font-weight: 500;
+      padding: 5px 12px;
+      border-radius: 20px;
+      background: white;
+      color: var(--text);
+      border: 1.5px solid var(--border);
+    }
+    .chip.g {
+      background: var(--green);
+      color: white;
+      border-color: var(--green);
+      font-weight: 600;
+    }
+
+    /* ── STACK ── */
+    .stack { display: flex; flex-wrap: wrap; gap: 8px; margin-top: 1rem; }
+    .s-chip {
+      font-size: 0.78rem;
+      padding: 5px 12px;
+      border-radius: 20px;
+      border: 1.5px solid #b8d5c8;
+      background: var(--green-pale);
+      color: var(--green-dark);
+      font-weight: 500;
+    }
+
+    /* ── SUS CHART ── */
+    .chart-wrap {
+      background: white;
+      border: 1.5px solid var(--border);
+      border-radius: 16px;
+      padding: 1.75rem;
+      margin: 1.75rem 0;
+    }
+    .chart-title {
+      font-size: 0.8rem;
+      font-weight: 700;
+      color: var(--green-deep);
+      margin-bottom: 1.25rem;
+      text-align: center;
+    }
+    .bar-chart { display: flex; align-items: flex-end; gap: 8px; height: 140px; }
+    .bar-group { flex: 1; display: flex; flex-direction: column; align-items: center; gap: 5px; }
+    .bar {
+      width: 100%;
+      background: var(--green);
+      border-radius: 5px 5px 0 0;
+      transition: opacity 0.2s;
+      min-width: 20px;
+    }
+    .bar:hover { opacity: 0.85; }
+    .bar-val {
+      font-size: 0.6rem;
+      font-weight: 700;
+      color: var(--green-dark);
+    }
+    .bar-lbl {
+      font-size: 0.6rem;
+      color: var(--muted);
+      text-align: center;
+      white-space: nowrap;
+    }
+    .chart-axis {
+      display: flex;
+      justify-content: space-between;
+      padding: 6px 0 0;
+      border-top: 1.5px solid var(--border);
+      margin-top: 8px;
+    }
+    .chart-axis span { font-size: 0.6rem; color: var(--muted); }
+
+    /* ── SCORE VISUAL ── */
+    .score-ring-wrap {
+      display: flex;
+      align-items: center;
+      gap: 2.5rem;
+      background: var(--green-pale);
+      border: 1.5px solid #b8d5c8;
+      border-radius: 16px;
+      padding: 2rem 2.5rem;
+      margin: 1.75rem 0;
+    }
+    .score-ring { position: relative; width: 120px; height: 120px; min-width: 120px; }
+    .score-ring svg { width: 120px; height: 120px; transform: rotate(-90deg); }
+    .score-ring .track { fill: none; stroke: #b8d5c8; stroke-width: 10; }
+    .score-ring .fill  { fill: none; stroke: var(--green); stroke-width: 10; stroke-linecap: round;
+                          stroke-dasharray: 314; stroke-dashoffset: 26; }
+    .score-center {
+      position: absolute; inset: 0;
+      display: flex; flex-direction: column; align-items: center; justify-content: center;
+    }
+    .score-center .big { font-size: 1.7rem; font-weight: 800; color: var(--green-deep); letter-spacing: -0.05em; line-height: 1; }
+    .score-center .small { font-size: 0.55rem; font-weight: 600; color: var(--muted); text-transform: uppercase; letter-spacing: 0.06em; }
+    .score-text h3 { font-size: 1.05rem; color: var(--green-deep); margin-bottom: 5px; }
+    .score-text p { font-size: 0.875rem; color: #1a2e26; margin-bottom: 0; }
+
+    /* ── FINDINGS ── */
+    .finding-grid {
+      display: grid;
+      grid-template-columns: repeat(auto-fit, minmax(185px, 1fr));
+      gap: 1rem;
+      margin-top: 1.5rem;
+    }
+    .finding-card {
+      background: white;
+      border: 1.5px solid var(--border);
+      border-top: 3px solid var(--green);
+      border-radius: 12px;
+      padding: 1.25rem;
+      text-align: center;
+    }
+    .f-pct {
+      font-size: 2.1rem;
+      font-weight: 800;
+      letter-spacing: -0.04em;
+      color: var(--green);
+      margin-bottom: 4px;
+    }
+    .finding-card p { font-size: 0.78rem; color: var(--muted); margin-bottom: 0; }
+
+    /* ── FOOTER ── */
+    footer {
+      background: var(--green-deep);
+      color: rgba(255,255,255,0.7);
+      text-align: center;
+      padding: 2.5rem 2rem;
+      font-size: 0.8rem;
+    }
+    footer strong { color: white; }
+
+    /* ── SCREENSHOTS ── */
+    .screenshot-section { margin-top: 2rem; }
+    .screenshot-row {
+      display: grid;
+      grid-template-columns: 1fr 1fr;
+      gap: 1.25rem;
+      margin-top: 1.5rem;
+    }
+    .screenshot-single { margin-top: 1.5rem; }
+    .screenshot-card {
+      border: 1.5px solid #b8d5c8;
+      border-radius: 14px;
+      overflow: hidden;
+      background: white;
+    }
+    .screenshot-card img {
+      width: 100%;
+      height: auto;
+      display: block;
+      border-bottom: 1.5px solid #b8d5c8;
+    }
+    .screenshot-caption {
+      padding: 10px 14px;
+      font-size: 0.75rem;
+      color: var(--muted);
+      background: var(--green-pale);
+    }
+    .screenshot-caption strong { color: var(--green-dark); }
+
+    @media (max-width: 640px) {
+      .stats-inner { grid-template-columns: repeat(2,1fr); }
+      .diagram { grid-template-columns: 1fr; }
+      .d-panel:last-child { border-left: none; border-top: 1.5px solid #b8d5c8; }
+      nav ul { display: none; }
+      .score-ring-wrap { flex-direction: column; text-align: center; }
+      .screenshot-row { grid-template-columns: 1fr; }
+    }
+  </style>
+</head>
+<body>
+
+<!-- NAV -->
+<nav>
+  <a class="nav-logo" href="#"><span>Dart</span>ActuallyWorks</a>
+  <ul>
+    <li><a href="#problem">Problem</a></li>
+    <li><a href="#research">Research</a></li>
+    <li><a href="#design">Design</a></li>
+    <li><a href="#prototype">Prototype</a></li>
+    <li><a href="#results">Results</a></li>
+  </ul>
+</nav>
+
+<!-- HERO -->
+<div class="hero">
+  <div class="hero-inner">
+    <div class="hero-tag">HCI Case Study &nbsp;·&nbsp; Dartmouth College</div>
+    <h1>Redesigning Dartmouth's<br><em>Major Declaration Platform</em></h1>
+    <p class="sub">
+      DartActuallyWorks consolidates scattered degree-planning information into one
+      unified, feedback-rich interface — replacing DartWorks for Dartmouth students.
+    </p>
+    <div class="meta-row">
+      <div class="meta-item">
+        <label>Course</label>
+        <span>COSC 67 — Human-Computer Interaction</span>
+      </div>
+      <div class="meta-item">
+        <label>Institution</label>
+        <span>Dartmouth College</span>
+      </div>
+      <div class="meta-item">
+        <label>Type</label>
+        <span>Group Project</span>
+      </div>
+      <div class="meta-item">
+        <label>Stack</label>
+        <span>Next.js · TypeScript · Prisma · AI</span>
+      </div>
+    </div>
+  </div>
+</div>
+
+<!-- STATS -->
+<div class="stats">
+  <div class="stats-inner">
+    <div class="stat"><div class="num">75</div><div class="lbl">Survey Responses</div></div>
+    <div class="stat"><div class="num">15</div><div class="lbl">Semi-structured Interviews</div></div>
+    <div class="stat"><div class="num">35</div><div class="lbl">Usability Study Participants</div></div>
+    <div class="stat"><div class="num">92.2</div><div class="lbl">Mean SUS Score / 100</div></div>
+  </div>
+</div>
+
+<!-- PROBLEM -->
+<section id="problem">
+  <div class="sec-tag">Problem</div>
+  <h2>Planning a major at Dartmouth is needlessly hard</h2>
+  <p>
+    Students must stitch together information from the Registrar website, individual department pages,
+    DartHub, and DartWorks — each showing only a fragment of what's needed to build a valid four-year plan.
+    Dartmouth's unique D-Plan off-term system, modified major options, and study abroad opportunities
+    add complexity that existing tools completely ignore.
+  </p>
+  <p>
+    The result: students miss prerequisites, make plan errors they discover too late, and default to
+    building handmade spreadsheets just to get a complete picture.
+  </p>
+  <blockquote>
+    "The Registrar tells me what I need for my major, not how to actually do it."
+  </blockquote>
+</section>
+
+<!-- RESEARCH -->
+<section id="research">
+  <div class="sec-tag">Formative Research</div>
+  <h2>What we found from 75 surveys and 15 interviews</h2>
+  <p>
+    We surveyed 75 Dartmouth undergraduates across all class years (2026–2029) and conducted
+    15 semi-structured interviews exploring pain points, tool usage, and desired features.
+    Four themes emerged consistently.
+  </p>
+  <div class="theme-grid">
+    <div class="theme-card">
+      <div class="theme-num">Theme 01</div>
+      <h3>Students are unhappy with DartWorks</h3>
+      <p>70% rated satisfaction at 3/5 or below. Common words: "stressful," "confusing," "more annoying than it needs to be."</p>
+    </div>
+    <div class="theme-card">
+      <div class="theme-num">Theme 02</div>
+      <h3>Information shown, but no guidance</h3>
+      <p>DartWorks lists requirements but offers no sequencing help for prerequisites, term availability, or double-counting detection.</p>
+    </div>
+    <div class="theme-card">
+      <div class="theme-num">Theme 03</div>
+      <h3>Students resort to spreadsheets</h3>
+      <p>Every interviewee used Google Sheets or Excel — manual, error-prone, and disconnected from live course data.</p>
+    </div>
+    <div class="theme-card">
+      <div class="theme-num">Theme 04</div>
+      <h3>Students want automation and instant feedback</h3>
+      <p>Participants asked for auto-population of completed courses, live requirement tracking, and real-time violation alerts.</p>
+    </div>
+  </div>
+  <blockquote>
+    "The system already knows my classes from DartHub — why am I manually populating everything?
+    It should put it in and tell me what options there are for other terms."
+  </blockquote>
+</section>
+
+<!-- DESIGN -->
+<section id="design">
+  <div class="sec-tag">Design Decisions</div>
+  <h2>HCI principles applied to every interaction</h2>
+  <p>
+    Every design decision is grounded in specific HCI principles to reduce extraneous cognitive load
+    and minimize user error — not just aesthetics.
+  </p>
+  <div class="principle-list">
+    <div class="principle-card">
+      <div class="p-icon">F</div>
+      <div>
+        <h3>Fitts' Law — minimize target acquisition time</h3>
+        <p>Primary buttons use 6–8px padding. "Add Course" sits directly adjacent to search results. Full-width modal buttons reduce pointer travel. Estimated 15–25% reduction in task completion time for common actions.</p>
+      </div>
+    </div>
+    <div class="principle-card">
+      <div class="p-icon">K</div>
+      <div>
+        <h3>KLM-GOMS — reduce interaction overhead</h3>
+        <p>Navigation labels simplified to concise alternatives. "Step X of 5" onboarding progress bar builds accurate mental models. Adding a course now takes 2–3 clicks vs. 4–5 previously — roughly 20% throughput improvement.</p>
+      </div>
+    </div>
+    <div class="principle-card">
+      <div class="p-icon">H</div>
+      <div>
+        <h3>Nielsen Heuristics — error prevention &amp; recognition</h3>
+        <p>Prerequisites validated automatically with visual indicators. A persistent sidebar keeps requirements always visible — recognition over recall. Dartmouth Green (#00693e) signals completion consistently throughout the UI.</p>
+      </div>
+    </div>
+  </div>
+</section>
+
+<!-- PROTOTYPE -->
+<section id="prototype">
+  <div class="sec-tag">Final Prototype</div>
+  <h2>One unified interface for everything</h2>
+  <p>
+    The web application centralizes all degree-planning into a single interactive interface
+    with three panels: requirement tracking on the left, drag-and-drop scheduling in the center,
+    and AI recommendations with violation alerts on the right.
+  </p>
+
+  <!-- Design evolution screenshots -->
+  <div class="screenshot-section">
+    <div class="screenshot-row">
+      <div class="screenshot-card">
+        <img src="dartworks-assets/prototype-sketch.png" alt="Early sketch prototype showing the Course Timeline layout with Available Courses sidebar and Requirement Progress panel" />
+        <div class="screenshot-caption"><strong>Early Prototype</strong> — sketch wireframe showing the three-panel layout, drag-and-drop course timeline, and requirement progress sidebar</div>
+      </div>
+      <div class="screenshot-card">
+        <img src="dartworks-assets/prototype-final.png" alt="High-fidelity final prototype with Dartmouth green branding, Course Planner timeline, and AI Recommendations panel" />
+        <div class="screenshot-caption"><strong>Final Prototype</strong> — high-fidelity implementation with Dartmouth green branding, transcript-populated courses, and AI Recommendations panel</div>
+      </div>
+    </div>
+  </div>
+
+  <div class="diagram-wrap">
+    <div class="diagram-lbl">Interface Layout — DartActuallyWorks</div>
+    <div class="diagram">
+      <!-- Left sidebar -->
+      <div class="d-panel">
+        <h4>Requirements</h4>
+        <div class="rbar"><span style="width:52px">CS Core</span><div class="fill" style="width:26px"></div><span>30%</span></div>
+        <div class="rbar"><span style="width:52px">CS Elec.</span><div class="fill" style="width:8px"></div><span>10%</span></div>
+        <div class="sub-lbl">Distributives</div>
+        <div class="rbar"><span style="width:26px">TAS</span><div class="fill" style="width:0px"></div><span>○</span></div>
+        <div class="rbar"><span style="width:26px">QDS</span><div class="fill" style="width:18px"></div><span>◑</span></div>
+        <div class="rbar"><span style="width:26px">ART</span><div class="fill" style="width:18px"></div><span>◑</span></div>
+        <div class="rbar"><span style="width:26px">LIT</span><div class="fill" style="width:18px"></div><span>◑</span></div>
+      </div>
+      <!-- Center -->
+      <div class="d-center">
+        <h4>Degree Plan — Drag &amp; Drop</h4>
+        <div style="display:grid;grid-template-columns:1fr 1fr 1fr;gap:5px">
+          <div class="term-box">
+            <div class="tlbl">25S</div>
+            <span class="cpill">MATH-8</span>
+          </div>
+          <div class="term-box">
+            <div class="tlbl">25X</div>
+            <span class="cpill">COSC-10</span>
+            <span class="cpill">MATH-3</span>
+          </div>
+          <div class="term-box">
+            <div class="tlbl">25F</div>
+            <span class="cpill">LIT-5</span>
+          </div>
+        </div>
+        <div style="margin-top:7px;font-size:0.58rem;color:#6b8c7e;text-align:center;padding:6px;border:1.5px dashed #b8d5c8;border-radius:6px">
+          Drop courses here
+        </div>
+      </div>
+      <!-- Right sidebar -->
+      <div class="d-panel">
+        <h4>AI Recommendations</h4>
+        <div class="ai-pill">COSC-10 — satisfies QDS</div>
+        <div class="ai-pill">COSC-72 — satisfies TAS + QDS</div>
+        <div class="sub-lbl">Violations &amp; Alerts</div>
+        <div class="v-item">MATH-8 requires MATH-3 first</div>
+        <div class="v-warn">MATH-8 not offered in 25X</div>
+      </div>
+    </div>
+  </div>
+
+  <div class="feature-chips">
+    <span class="chip g">Transcript PDF upload → auto-import</span>
+    <span class="chip g">Drag-and-drop term planning</span>
+    <span class="chip g">Real-time violation alerts</span>
+    <span class="chip g">AI course recommendations</span>
+    <span class="chip">Multi-major / minor tracking</span>
+    <span class="chip">Distributive &amp; world culture requirements</span>
+    <span class="chip">D-Plan off-term management</span>
+    <span class="chip">Prerequisite constraint validation</span>
+    <span class="chip">35-credit graduation threshold</span>
+    <span class="chip">Major declaration submission workflow</span>
+  </div>
+
+  <div class="stack">
+    <span class="s-chip">Next.js 14</span>
+    <span class="s-chip">TypeScript</span>
+    <span class="s-chip">TailwindCSS</span>
+    <span class="s-chip">Prisma + SQLite</span>
+    <span class="s-chip">React Query + Zustand</span>
+    <span class="s-chip">AI Recommendations</span>
+  </div>
+</section>
+
+<!-- RESULTS -->
+<section id="results">
+  <div class="sec-tag">Evaluation</div>
+  <h2>Tested with 35 students at Technigala</h2>
+  <p>
+    We evaluated using an adapted System Usability Scale (SUS). Our target was 80 —
+    the threshold for "good" usability. We exceeded it significantly.
+  </p>
+
+  <!-- Score ring -->
+  <div class="score-ring-wrap">
+    <div class="score-ring">
+      <svg viewBox="0 0 120 120">
+        <circle class="track" cx="60" cy="60" r="50"/>
+        <circle class="fill"  cx="60" cy="60" r="50"/>
+      </svg>
+      <div class="score-center">
+        <div class="big">92.2</div>
+        <div class="small">/ 100 SUS</div>
+      </div>
+    </div>
+    <div class="score-text">
+      <h3>"Best Imaginable" usability range</h3>
+      <p>
+        Median score 97.5. Scores ranged from 67.5 to 100 across 35 participants.
+        Our target was 80 — we exceeded it by over 12 points.
+        Question 1 (preference over DartWorks) received the highest contribution of any question.
+      </p>
+    </div>
+  </div>
+
+  <!-- Bar chart -->
+  <div class="chart-wrap">
+    <div class="chart-title">Average SUS Score Contribution per Question (out of 4)</div>
+    <div class="bar-chart">
+      <!-- Heights scaled: max=3.8 → 130px, 0 → 0px. scale = 130/4 = 32.5px per unit -->
+      <!-- Q1=3.82, Q2=3.2, Q3=3.65, Q4=3.55, Q5=3.6, Q6=3.62, Q7=3.7, Q8=3.75, Q9=3.68, Q10=3.58 -->
+      <div class="bar-group">
+        <div class="bar-val">3.82</div>
+        <div class="bar" style="height:124px; background:var(--green);"></div>
+        <div class="bar-lbl">Q1</div>
+      </div>
+      <div class="bar-group">
+        <div class="bar-val">3.20</div>
+        <div class="bar" style="height:104px; background:#5a9e7a;"></div>
+        <div class="bar-lbl">Q2</div>
+      </div>
+      <div class="bar-group">
+        <div class="bar-val">3.65</div>
+        <div class="bar" style="height:118px;"></div>
+        <div class="bar-lbl">Q3</div>
+      </div>
+      <div class="bar-group">
+        <div class="bar-val">3.55</div>
+        <div class="bar" style="height:115px;"></div>
+        <div class="bar-lbl">Q4</div>
+      </div>
+      <div class="bar-group">
+        <div class="bar-val">3.60</div>
+        <div class="bar" style="height:117px;"></div>
+        <div class="bar-lbl">Q5</div>
+      </div>
+      <div class="bar-group">
+        <div class="bar-val">3.62</div>
+        <div class="bar" style="height:117px;"></div>
+        <div class="bar-lbl">Q6</div>
+      </div>
+      <div class="bar-group">
+        <div class="bar-val">3.70</div>
+        <div class="bar" style="height:120px;"></div>
+        <div class="bar-lbl">Q7</div>
+      </div>
+      <div class="bar-group">
+        <div class="bar-val">3.75</div>
+        <div class="bar" style="height:122px;"></div>
+        <div class="bar-lbl">Q8</div>
+      </div>
+      <div class="bar-group">
+        <div class="bar-val">3.68</div>
+        <div class="bar" style="height:119px;"></div>
+        <div class="bar-lbl">Q9</div>
+      </div>
+      <div class="bar-group">
+        <div class="bar-val">3.58</div>
+        <div class="bar" style="height:116px;"></div>
+        <div class="bar-lbl">Q10</div>
+      </div>
+    </div>
+    <div class="chart-axis">
+      <span>0</span>
+      <span>1</span>
+      <span>2</span>
+      <span>3</span>
+      <span>4 (max)</span>
+    </div>
+    <p style="font-size:0.72rem;color:var(--muted);margin-top:10px;text-align:center;">
+      Q1 (preference over DartWorks) scored highest. Q2 (complexity) scored lowest — an area for future refinement.
+    </p>
+  </div>
+
+  <!-- Finding cards -->
+  <div class="finding-grid">
+    <div class="finding-card">
+      <div class="f-pct">91%</div>
+      <p>strongly agreed they would prefer DartActuallyWorks over the current DartWorks system</p>
+    </div>
+    <div class="finding-card">
+      <div class="f-pct">100%</div>
+      <p>agreed most people would learn to use the system very quickly</p>
+    </div>
+    <div class="finding-card">
+      <div class="f-pct">82.6%</div>
+      <p>strongly disagreed that the system was cumbersome to use</p>
+    </div>
+    <div class="finding-card">
+      <div class="f-pct">78.3%</div>
+      <p>found the system easy to use and functions well integrated</p>
+    </div>
+  </div>
+
+  <p style="margin-top:1.5rem;">
+    Qualitative feedback consistently highlighted improved clarity, reduced cognitive effort,
+    and the value of seeing all planning information in one place. Graduate students noted
+    they wished a tool like this had existed during their own undergraduate years.
+  </p>
+</section>
+
+<!-- FOOTER -->
+<footer>
+  <p>Built collaboratively as a group project for <strong>Dartmouth COSC 67</strong> — Introduction to Human-Computer Interaction.</p>
+</footer>
+
+</body>
+</html>

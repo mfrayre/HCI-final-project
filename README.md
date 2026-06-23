@@ -6,6 +6,8 @@ A research-driven web application that replaces DartWorks — consolidating scat
 
 Built as a group project for **COSC 67: Human-Computer Interaction** at Dartmouth College.
 
+**[View Case Study →](https://mfrayre.github.io/HCI-final-project/)**
+
 ---
 
 ## Research Highlights
