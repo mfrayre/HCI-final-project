@@ -1,0 +1,55 @@
+@tailwind base;
+@tailwind components;
+@tailwind utilities;
+
+:root {
+  --background: #ffffff;
+  --foreground: #171717;
+  --dartmouth-green: #1b7a4d;
+  --dartmouth-green-light: #00a651;
+  --dartmouth-green-dark: #0d4a2c;
+}
+
+/* Disable dark mode to prevent black navbar */
+@media (prefers-color-scheme: dark) {
+  :root {
+    --background: #ffffff;
+    --foreground: #171717;
+  }
+}
+
+body {
+  color: #1f2937; /* dark gray for better contrast on light background */
+  background: var(--background);
+  font-family: -apple-system, BlinkMacSystemFont, 'Segoe UI', 'Roboto', 'Oxygen', 'Ubuntu', 'Cantarell', 'Fira Sans', 'Droid Sans', 'Helvetica Neue', sans-serif;
+}
+
+/* Enhanced button utility classes following Fitts' Law */
+@layer components {
+  .btn-primary {
+    @apply px-6 py-3 bg-gradient-to-r from-[#1b7a4d] to-[#00a651] text-white font-semibold rounded-lg hover:shadow-lg transition-all duration-200 transform hover:scale-105 active:scale-95;
+  }
+
+  .btn-secondary {
+    @apply px-6 py-3 bg-white border-2 border-[#1b7a4d] text-[#1b7a4d] font-semibold rounded-lg hover:bg-green-50 transition-all duration-200;
+  }
+
+  .btn-small {
+    @apply px-4 py-2 bg-[#1b7a4d] text-white font-medium rounded-md hover:bg-[#0d4a2c] transition-all duration-200;
+  }
+}
+
+@layer utilities {
+  .text-balance {
+    text-wrap: balance;
+  }
+
+  .dartmouth-green {
+    @apply text-[#1b7a4d];
+  }
+
+  .bg-dartmouth-green {
+    @apply bg-[#1b7a4d];
+  }
+}
+

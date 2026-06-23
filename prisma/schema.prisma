@@ -1,0 +1,136 @@
+// This is your Prisma schema file,
+// learn more about it in the docs: https://pris.ly/d/prisma-schema
+
+generator client {
+  provider = "prisma-client-js"
+}
+
+datasource db {
+  provider = "postgresql"
+  url      = env("DATABASE_URL")
+}
+
+model User {
+  id        String   @id @default(cuid())
+  name      String
+  email     String   @unique
+  classYear Int
+  createdAt DateTime @default(now())
+  updatedAt DateTime @updatedAt
+
+  plans Plan[]
+}
+
+model Course {
+  id            String   @id // e.g. "COSC-10"
+  title         String
+  department    String
+  number        String
+  description   String?
+  distributives String   // JSON array: ["TAS", "QDS"]
+  worldCulture  String?  // e.g. "NW", "CI"
+  credits       Int      @default(1)
+  offeredTerms  String   // JSON array: ["23F", "24W"]
+  prerequisites String   // JSON array: ["COSC-1", "MATH-3"]
+  isAbroadOnly  Boolean  @default(false)
+
+  plannedCourses PlannedCourse[]
+}
+
+model Major {
+  id          String   @id @default(cuid())
+  name        String   // "Computer Science", "Economics", etc.
+  department  String
+  catalogYear String   // e.g. "2024-2025"
+  
+  requirementGroups MajorRequirementGroup[]
+  primaryPlans      Plan[] @relation("PrimaryMajor")
+  secondaryPlans    Plan[] @relation("SecondaryMajor")
+  templates         PlanTemplate[]
+}
+
+model MajorRequirementGroup {
+  id                String   @id @default(cuid())
+  majorId           String
+  name              String   // "Core Requirements", "Electives", etc.
+  minCourses        Int?
+  requiredCourseIds String   // JSON array
+  allowedCourseIds  String   // JSON array
+  notes             String?
+
+  major Major @relation(fields: [majorId], references: [id], onDelete: Cascade)
+}
+
+model Plan {
+  id                    String   @id @default(cuid())
+  userId                String
+  name                  String?  // User-defined plan name (e.g., "Fall 2024 Plan", "Backup Plan")
+  primaryMajorId        String?
+  secondaryMajorId      String?
+  minors                String   // JSON array
+  planType              String   @default("full") // "full" | "major-only"
+  termsOff              String   @default("[]") // JSON array: ["24S", "25W"] - D-Plan terms off
+  apCredits             String   @default("[]") // JSON array: ["COSC-1", "MATH-3"] - AP credits that satisfy prerequisites
+  status                String   @default("draft") // "draft" | "submitted" | "approved" | "requires_changes"
+  isModifiedMajor       Boolean  @default(false)
+  customMajorRequirements String? // JSON for custom major requirements
+  isTemplate            Boolean  @default(false) // For upperclassmen templates
+  templateName          String?
+  templateDescription   String?
+  createdAt             DateTime @default(now())
+  updatedAt             DateTime @updatedAt
+
+  user            User            @relation(fields: [userId], references: [id], onDelete: Cascade)
+  primaryMajor    Major?          @relation("PrimaryMajor", fields: [primaryMajorId], references: [id])
+  secondaryMajor  Major?          @relation("SecondaryMajor", fields: [secondaryMajorId], references: [id])
+  termPlans       TermPlan[]
+  plannedCourses  PlannedCourse[]
+  template        PlanTemplate?
+}
+
+model TermPlan {
+  id            String   @id @default(cuid())
+  planId        String
+  termCode      String   // "24W", "24S", etc.
+  maxCourses    Int      @default(4)
+  isStudyAbroad Boolean  @default(false)
+
+  plan          Plan            @relation(fields: [planId], references: [id], onDelete: Cascade)
+  plannedCourses PlannedCourse[]
+
+  @@unique([planId, termCode])
+}
+
+model PlannedCourse {
+  id          String   @id @default(cuid())
+  planId      String
+  termPlanId  String
+  courseId    String
+  isCompleted Boolean  @default(false)
+  source      String   // "imported" | "planned"
+
+  plan     Plan     @relation(fields: [planId], references: [id], onDelete: Cascade)
+  termPlan TermPlan @relation(fields: [termPlanId], references: [id], onDelete: Cascade)
+  course   Course   @relation(fields: [courseId], references: [id], onDelete: Cascade)
+
+  @@index([planId])
+  @@index([termPlanId])
+  @@index([courseId])
+}
+
+model PlanTemplate {
+  id                String   @id @default(cuid())
+  name              String
+  description       String?
+  majorId           String?
+  planId            String   @unique
+  classYear         Int
+  termsOff          String   // JSON array
+  isPublic          Boolean  @default(true)
+  createdByUserId   String?
+  createdAt         DateTime @default(now())
+  
+  major             Major?   @relation(fields: [majorId], references: [id])
+  plan              Plan    @relation(fields: [planId], references: [id])
+}
+
